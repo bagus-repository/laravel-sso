@@ -12,8 +12,8 @@
     "minimum-stability": "dev",
     "require": {
       "php": "^7.4|8.0.*",
-      "dptsi/php-openid-connect-client": "^1.4.0",
-      "ramsey/uuid": "*"
+      "myits/openid-connect-client": "^1.4.0",
+      "ramsey/uuid": "^1.0.0"
     },
     "autoload": {
       "psr-4": {
