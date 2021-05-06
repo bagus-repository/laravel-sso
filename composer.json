@@ -1,0 +1,23 @@
+{
+    "name": "dptsi/laravel-sso",
+    "description": "Laravel login package for SSO ITS",
+    "type": "library",
+
+    "authors": [
+      {
+        "name": "DPTSI ITS",
+        "email": "developer@its.ac.id"
+      }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+      "php": "^7.4|8.0.*",
+      "dptsi/php-openid-connect-client": "^1.4.0",
+      "ramsey/uuid": "*"
+    },
+    "autoload": {
+      "psr-4": {
+        "Dptsi\\Sso\\": "src/"
+      }
+    }
+  }
