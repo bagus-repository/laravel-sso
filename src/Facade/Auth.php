@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Facade;
 
 /**
  * Class ModuleManager
- * @package Dptsi\Modular\Facade
- *
+ * @package Dptsi\Sso\Facade
  * @method static void loginSso(OidcRequest $request)
  * @method static void logoutSso()
  * @method static ?bool check()
