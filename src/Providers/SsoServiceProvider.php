@@ -29,5 +29,10 @@ class SsoServiceProvider extends ServiceProvider
 
     protected function publish()
     {
+        $this->publishes(
+            [
+                __DIR__ . '/../config/openid.php' => config_path('openid.php'),
+            ]
+        );
     }
 }
