@@ -144,9 +144,9 @@ class AuthManager
 
         foreach ($this->user()->getUserRoles() as $role) {
             $formatted[] = [
-                'name' => $this->user()->getActiveRole()->getName(),
-                'org_id' => $this->user()->getActiveRole()->getOrganizationUnit() ? $this->user()->getActiveRole()->getOrganizationUnit()->getId()->id() : null,
-                'org_name' => $this->user()->getActiveRole()->getOrganizationUnit() ? $this->user()->getActiveRole()->getOrganizationUnit()->getName() : null
+                'name' => $role->getName(),
+                'org_id' => $role->getOrganizationUnit() ? $role->getOrganizationUnit()->getId()->id() : null,
+                'org_name' => $role->getOrganizationUnit() ? $role->getOrganizationUnit()->getName() : null
             ];
         }
 
