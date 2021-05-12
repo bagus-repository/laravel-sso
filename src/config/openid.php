@@ -7,4 +7,9 @@ return [
     'redirect_uri'              => env('OPENID_REDIRECT_URI'),
     'post_logout_redirect_uri'  => env('OPENID_POST_LOGOUT_REDIRECT_URI'),
     'scope'                     => env('OPENID_SCOPE'),
+    'allowed_roles'             => [
+        'Role1',
+        'Role2',
+        'Role3'
+    ],
 ];
