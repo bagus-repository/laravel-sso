@@ -3,7 +3,9 @@
 namespace Dptsi\Sso\Providers;
 
 use Dptsi\Sso\Core\AuthManager;
-use Illuminate\Support\Facades\App;
+use Dptsi\Sso\Middleware\Sso;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 
 class SsoServiceProvider extends ServiceProvider
@@ -22,9 +24,14 @@ class SsoServiceProvider extends ServiceProvider
      * Bootstrap services.
      *
      * @return void
+     * @throws BindingResolutionException
      */
     public function boot()
     {
+        $router = $this->app->make(Router::class);
+        $router->aliasMiddleware('sso', Sso::class);
+
+        $this->publish();
     }
 
     protected function publish()
