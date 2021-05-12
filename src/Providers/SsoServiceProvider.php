@@ -17,7 +17,7 @@ class SsoServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('auth', AuthManager::class);
+        $this->app->singleton('auth_manager', AuthManager::class);
     }
 
     /**
