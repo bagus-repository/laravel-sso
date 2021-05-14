@@ -2,7 +2,7 @@
 
 namespace Dptsi\Sso\Providers;
 
-use Dptsi\Sso\Core\AuthManager;
+use Dptsi\Sso\Core\SsoManager;
 use Dptsi\Sso\Middleware\Sso;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Routing\Router;
@@ -17,7 +17,7 @@ class SsoServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('auth_manager', AuthManager::class);
+        $this->app->singleton('sso_manager', SsoManager::class);
     }
 
     /**

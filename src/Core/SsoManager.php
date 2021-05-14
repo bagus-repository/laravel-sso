@@ -14,9 +14,9 @@ use Dptsi\Sso\Requests\OidcLogoutRequest;
 use Illuminate\Support\Facades\Session;
 use Its\Sso\OpenIDConnectClient;
 
-class AuthManager
+class SsoManager
 {
-    public function loginSso(OidcLoginRequest $request)
+    public function login(OidcLoginRequest $request)
     {
         $oidc = new OpenIDConnectClient($request->getProvider(), $request->getClientId(), $request->getClientSecret());
 
@@ -84,16 +84,16 @@ class AuthManager
             }
         }
 
-        Session::put('auth.user', serialize($user));
+        Session::put('sso.user', serialize($user));
 
-        Session::put('auth.id_token', $oidc->getIdToken());
+        Session::put('sso.id_token', $oidc->getIdToken());
     }
 
-    public function logoutSso(OidcLogoutRequest $request)
+    public function logout(OidcLogoutRequest $request)
     {
-        $accessToken = Session::get('auth.id_token');
+        $accessToken = Session::get('sso.id_token');
 
-        Session::remove('auth');
+        Session::remove('sso');
 
         Session::save();
 
@@ -111,22 +111,22 @@ class AuthManager
 
     public function check(): ?bool
     {
-        return Session::has('auth.user');
+        return Session::has('sso.user');
     }
 
     public function user(): ?User
     {
-        return unserialize(Session::get('auth.user'));
+        return unserialize(Session::get('sso.user'));
     }
 
     public function set(User $user)
     {
-        Session::put('auth.user', serialize($user));
+        Session::put('sso.user', serialize($user));
     }
 
     public function token(): ?string
     {
-        return Session::get('auth.id_token');
+        return Session::get('sso.id_token');
     }
 
     public function roles(): ?array

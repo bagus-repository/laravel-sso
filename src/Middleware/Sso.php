@@ -11,7 +11,7 @@ class Sso
 {
     public function handle($request, Closure $next)
     {
-        if (Session::has('auth.user')) {
+        if (Session::has('sso.user')) {
             return $next($request);
         }
 

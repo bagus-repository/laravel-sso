@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Facade;
 /**
  * Class Sso
  * @package Dptsi\Sso\Facade
- * @method static void loginSso(\Dptsi\Sso\Requests\OidcLoginRequest $request)
- * @method static void logoutSso(\Dptsi\Sso\Requests\OidcLogoutRequest $request)
+ * @method static void login(\Dptsi\Sso\Requests\OidcLoginRequest $request)
+ * @method static void logout(\Dptsi\Sso\Requests\OidcLogoutRequest $request)
  * @method static bool check()
  * @method static \Dptsi\Sso\Models\User user()
  * @method static void set(\Dptsi\Sso\Models\User $user)
@@ -19,10 +19,10 @@ use Illuminate\Support\Facades\Facade;
  * @method static array activeRole()
  */
 
-class Auth extends Facade
+class Sso extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return 'auth_manager';
+        return 'sso_manager';
     }
 }

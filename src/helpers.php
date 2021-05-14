@@ -6,6 +6,6 @@ if (!function_exists('sso')) {
      */
     function sso()
     {
-        return \Dptsi\Sso\Facade\Auth::user() ?? null;
+        return \Dptsi\Sso\Facade\Sso::user() ?? null;
     }
 }
