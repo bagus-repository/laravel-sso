@@ -2,6 +2,7 @@
 
 namespace Dptsi\Sso\Core;
 
+use DateTime;
 use Dptsi\Sso\Models\Account;
 use Dptsi\Sso\Models\OrganizationUnit;
 use Dptsi\Sso\Models\OrganizationUnitId;
@@ -60,7 +61,7 @@ class SsoManager
         $defaultRole = null;
 
         foreach ($userInfo->group as $group) {
-             if(in_array($group->group_name, config('openid.allowed_roles'), false)) {
+             if(in_array($group->group_name, config('openid.allowed_roles'))) {
                 $user->addUserRole(
                     new Role($group->group_name, null)
                 );
@@ -68,12 +69,13 @@ class SsoManager
         }
 
         foreach ($userInfo->role as $role) {
-             if(in_array($role->role_name, config('openid.allowed_roles'), false)) {
-                $newRole = new Role($role->role_name, new OrganizationUnit(new OrganizationUnitId($role->org_id), $role->org_name));
+            if(in_array($role->role_name, config('openid.allowed_roles'))) {
+                $role->expired_at = $role->expired_at ? new DateTime($role->expired_at) : null;
+                $newRole = new Role($role->role_name, new OrganizationUnit(new OrganizationUnitId($role->org_id), $role->org_name, $role->expired_at));
                 $user->addUserRole($newRole);
                 if ($role->is_default === '1')
                     $defaultRole = $newRole;
-             }
+            }
         }
 
         if (!empty($user->getUserRoles())) {

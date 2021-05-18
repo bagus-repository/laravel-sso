@@ -25,4 +25,9 @@ class Role
     {
         return $this->organizationUnit;
     }
+
+    public function hasOrganizationUnit(): bool
+    {
+        return $this->organizationUnit ? true : false;
+    }
 }

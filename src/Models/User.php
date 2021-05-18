@@ -74,29 +74,6 @@ class User
         }
     }
 
-    public function hasRole(string $roleName): bool
-    {
-        foreach ($this->userRoles as $userRole) {
-            if ($roleName === $userRole->getName()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function changeRole(string $roleName)
-    {
-        if($this->hasRole($roleName)) {
-            foreach ($this->userRoles as $userRole) {
-                if ($roleName === $userRole->getName()) {
-                    $this->activeRole = $userRole;
-                    break;
-                }
-            }
-        }
-    }
-
     public function canRead(string $path): bool
     {
         foreach ($this->resources[$this->getActiveRole()->getName()] as $resource) {
