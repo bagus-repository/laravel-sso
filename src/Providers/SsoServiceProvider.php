@@ -39,7 +39,8 @@ class SsoServiceProvider extends ServiceProvider
         $this->publishes(
             [
                 __DIR__ . '/../config/openid.php' => config_path('openid.php'),
-            ]
+            ],
+            'dptsi-sso'
         );
     }
 }
