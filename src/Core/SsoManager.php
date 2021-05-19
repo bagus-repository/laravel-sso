@@ -25,7 +25,7 @@ class SsoManager
 
         $oidc->addScope($request->getScope());
 
-        if(config('app.env') != 'production' || config('app.env') != 'PRODUCTION') {
+        if(strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
             $oidc->setVerifyHost(false);
             $oidc->setVerifyPeer(false);
         }
@@ -103,7 +103,7 @@ class SsoManager
 
         $oidc = new OpenIDConnectClient($request->getProvider(), $request->getClientId(), $request->getClientSecret());
 
-        if(config('app.env') != 'production' || config('app.env') != 'PRODUCTION') {
+        if(strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
             $oidc->setVerifyHost(false);
             $oidc->setVerifyPeer(false);
         }
