@@ -5,13 +5,12 @@ namespace Dptsi\Sso\Middleware;
 
 
 use Closure;
-use Illuminate\Support\Facades\Session;
 
 class Sso
 {
     public function handle($request, Closure $next)
     {
-        if (Session::has('sso.user')) {
+        if (sso()->check()) {
             return $next($request);
         }
 

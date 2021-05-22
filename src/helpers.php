@@ -1,11 +1,12 @@
 <?php
 
+
 if (!function_exists('sso')) {
     /**
-     * @return \Dptsi\Sso\Models\User|null
+     * @return \Dptsi\Sso\Core\SsoManager|null
      */
     function sso()
     {
-        return \Dptsi\Sso\Facade\Sso::user() ?? null;
+        return app(\Dptsi\Sso\Core\SsoManager::class) ?? null;
     }
 }
