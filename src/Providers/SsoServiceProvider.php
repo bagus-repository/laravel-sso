@@ -31,6 +31,9 @@ class SsoServiceProvider extends ServiceProvider
         $router = $this->app->make(Router::class);
         $router->aliasMiddleware('sso', Sso::class);
 
+        $this->loadViewsFrom(__DIR__ . '/../views', 'Sso');
+        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+
         $this->publish();
     }
 

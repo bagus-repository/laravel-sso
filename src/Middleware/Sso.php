@@ -10,7 +10,10 @@ class Sso
 {
     public function handle($request, Closure $next)
     {
-        if (sso()->check()) {
+        if (\Dptsi\Sso\Facade\Sso::check()) {
+            if (empty(\Dptsi\Sso\Facade\Sso::user()->getUserRoles())) {
+                return response()->view('Sso::illegitimate-role', [ 'provider' => config('openid.provider') ]);
+            }
             return $next($request);
         }
 
