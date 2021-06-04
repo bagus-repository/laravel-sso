@@ -12,11 +12,9 @@ use Illuminate\Support\Facades\Facade;
  * @method static void login(\Dptsi\Sso\Requests\OidcLoginRequest $request)
  * @method static void logout(\Dptsi\Sso\Requests\OidcLogoutRequest $request)
  * @method static bool check()
- * @method static \Dptsi\Sso\Models\User user()
+ * @method static \Dptsi\Sso\Models\User|null user()
  * @method static void set(\Dptsi\Sso\Models\User $user)
- * @method static string token()
- * @method static array roles()
- * @method static array activeRole()
+ * @method static string|null token()
  */
 
 class Sso extends Facade

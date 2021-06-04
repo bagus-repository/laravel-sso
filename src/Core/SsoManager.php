@@ -2,14 +2,9 @@
 
 namespace Dptsi\Sso\Core;
 
-use DateTime;
-use Dptsi\Sso\Models\Account;
-use Dptsi\Sso\Models\OrganizationUnit;
-use Dptsi\Sso\Models\OrganizationUnitId;
-use Dptsi\Sso\Models\PersonalInfo;
+use Carbon\Carbon;
 use Dptsi\Sso\Models\Role;
 use Dptsi\Sso\Models\User;
-use Dptsi\Sso\Models\UserId;
 use Dptsi\Sso\Requests\OidcLoginRequest;
 use Dptsi\Sso\Requests\OidcLogoutRequest;
 use Illuminate\Support\Facades\Session;
@@ -17,7 +12,7 @@ use Its\Sso\OpenIDConnectClient;
 
 class SsoManager
 {
-    public function login(OidcLoginRequest $request)
+    public function login(OidcLoginRequest $request): void
     {
         $oidc = new OpenIDConnectClient($request->getProvider(), $request->getClientId(), $request->getClientSecret());
 
@@ -25,7 +20,7 @@ class SsoManager
 
         $oidc->addScope($request->getScope());
 
-        if(strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
+        if (strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
             $oidc->setVerifyHost(false);
             $oidc->setVerifyPeer(false);
         }
@@ -34,64 +29,55 @@ class SsoManager
 
         $userInfo = $oidc->requestUserInfo();
 
-        $userId = new UserId($userInfo->sub);
-        $resourceClaim = json_decode(json_encode($userInfo->resource), true);
-
         $user = new User(
-            $userId,
-            new Account(
-                $userId,
-                $userInfo->preferred_username,
-                $userInfo->email,
-                $userInfo->email_verified,
-                $userInfo->alternate_email,
-                $userInfo->alternate_email_verified,
-                $userInfo->phone,
-                $userInfo->phone_verified
-            ),
-            new PersonalInfo(
-                $userId,
-                $userInfo->name,
-                $userInfo->nickname,
-                $userInfo->picture
-            ),
-            $resourceClaim
+            $userInfo->sub,
+            $userInfo->name ?? null,
+            $userInfo->nickname ?? null,
+            $userInfo->picture ?? null,
+            $userInfo->gender ?? null,
+            $userInfo->birthdate ? new Carbon($userInfo->birthdate) : null,
+            $userInfo->zoneinfo ?? null,
+            $userInfo->locale ?? null,
+            $userInfo->preferred_username ?? null,
+            $userInfo->email ?? null,
+            $userInfo->email_verified ?? null,
+            $userInfo->alternate_email ?? null,
+            $userInfo->alternate_email_verified ?? null,
+            $userInfo->phone ?? null,
+            $userInfo->phone_verified ?? null,
+            $userInfo->resource ? json_decode(json_encode($userInfo->resource), true) : null,
+            $userInfo->integra_id ?? null,
         );
 
-        $defaultRole = null;
-
         foreach ($userInfo->group as $group) {
-             if(in_array($group->group_name, config('openid.allowed_roles'))) {
-                $user->addUserRole(
-                    new Role($group->group_name, null)
-                );
-             }
+            if (in_array($group->group_name, config('openid.allowed_roles'))) {
+                $user->addUserRole(new Role($group->group_name, null, null, null));
+            }
         }
 
         foreach ($userInfo->role as $role) {
-            if(in_array($role->role_name, config('openid.allowed_roles'))) {
-                $role->expired_at = $role->expired_at ? new DateTime($role->expired_at) : null;
-                $newRole = new Role($role->role_name, new OrganizationUnit(new OrganizationUnitId($role->org_id), $role->org_name, $role->expired_at));
+            if (in_array($role->role_name, config('openid.allowed_roles'))) {
+                $newRole = new Role(
+                    $role->role_name,
+                    $role->org_id,
+                    $role->org_name,
+                    $role->expired_at ? new Carbon($role->expired_at) : null,
+                );
                 $user->addUserRole($newRole);
                 if ($role->is_default === '1')
-                    $defaultRole = $newRole;
+                    $user->setActiveRole($newRole);
             }
         }
 
-        if (!empty($user->getUserRoles())) {
-            if ($defaultRole) {
-                $user->setActiveRole($defaultRole);
-            } else {
-                $user->setActiveRole($user->getUserRoles()[0]);
-            }
-        }
+        if (!empty($user->getRoles()) && empty($user->getActiveRole()))
+            $user->setActiveRole($user->getRoles()[0] ?? null);
 
         Session::put('sso.user', serialize($user));
 
         Session::put('sso.id_token', $oidc->getIdToken());
     }
 
-    public function logout(OidcLogoutRequest $request)
+    public function logout(OidcLogoutRequest $request): void
     {
         $accessToken = Session::get('sso.id_token');
 
@@ -103,7 +89,7 @@ class SsoManager
 
         $oidc = new OpenIDConnectClient($request->getProvider(), $request->getClientId(), $request->getClientSecret());
 
-        if(strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
+        if (strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
             $oidc->setVerifyHost(false);
             $oidc->setVerifyPeer(false);
         }
@@ -111,8 +97,10 @@ class SsoManager
         $oidc->signOut($accessToken, $redirect);
     }
 
-    public function check(): ?bool
+    public function check(): bool
     {
+        if (Session::has('sso.user') == null)
+            return false;
         return Session::has('sso.user');
     }
 
@@ -121,7 +109,7 @@ class SsoManager
         return unserialize(Session::get('sso.user'));
     }
 
-    public function set(User $user)
+    public function set(User $user): void
     {
         Session::put('sso.user', serialize($user));
     }
@@ -129,29 +117,5 @@ class SsoManager
     public function token(): ?string
     {
         return Session::get('sso.id_token');
-    }
-
-    public function roles(): ?array
-    {
-        $formatted = [];
-
-        foreach ($this->user()->getUserRoles() as $role) {
-            $formatted[] = [
-                'name' => $role->getName(),
-                'org_id' => $role->getOrganizationUnit() ? $role->getOrganizationUnit()->getId()->id() : null,
-                'org_name' => $role->getOrganizationUnit() ? $role->getOrganizationUnit()->getName() : null
-            ];
-        }
-
-        return $formatted;
-    }
-
-    public function activeRole(): ?array
-    {
-        return [
-            'name' => $this->user()->getActiveRole()->getName(),
-            'org_id' => $this->user()->getActiveRole()->getOrganizationUnit() ? $this->user()->getActiveRole()->getOrganizationUnit()->getId()->id() : null,
-            'org_name' => $this->user()->getActiveRole()->getOrganizationUnit() ? $this->user()->getActiveRole()->getOrganizationUnit()->getName() : null
-        ];
     }
 }
