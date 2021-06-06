@@ -92,6 +92,7 @@ class User
         $this->phone = $phone;
         $this->phone_verified = $phone_verified;
         $this->roles = array();
+        $this->active_role = null;
         $this->resources = $resources;
         $this->integra_id = $integra_id;
     }
