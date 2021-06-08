@@ -1,6 +1,6 @@
 # Laravel SSO
 
-A helper package for login using ITS SSO in laravel framework
+A helper package for ITS SSO authentication in laravel framework
 
 ## Requirements
 
