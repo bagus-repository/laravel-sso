@@ -1,6 +1,6 @@
 {
   "name": "dptsi/laravel-sso",
-  "description": "Laravel login package for SSO ITS",
+  "description": "Laravel authentication package for SSO ITS",
   "type": "library",
   "authors": [
     {
