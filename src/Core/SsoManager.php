@@ -20,7 +20,7 @@ class SsoManager
 
         $oidc->addScope($request->getScope());
 
-        if (strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
+        if (!in_array(strtolower(config('app.env')), ['production', 'prod'])) {
             $oidc->setVerifyHost(false);
             $oidc->setVerifyPeer(false);
         }
