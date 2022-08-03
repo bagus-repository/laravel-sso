@@ -106,7 +106,7 @@ class SsoManager
 
     public function user(): ?User
     {
-        return unserialize(Session::get('sso.user'));
+        return Session::has('sso.user') ? unserialize(Session::get('sso.user')) : null;
     }
 
     public function set(User $user): void
