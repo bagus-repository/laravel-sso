@@ -20,7 +20,7 @@ class SsoManager
 
         $oidc->addScope($request->getScope());
 
-        if (!in_array(strtolower(config('app.env')), ['production', 'prod'])) {
+        if (strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
             $oidc->setVerifyHost(false);
             $oidc->setVerifyPeer(false);
         }
@@ -75,6 +75,8 @@ class SsoManager
         Session::put('sso.user', serialize($user));
 
         Session::put('sso.id_token', $oidc->getIdToken());
+
+        Session::put('sso.access_token', $oidc->getAccessToken());
     }
 
     public function logout(OidcLogoutRequest $request): void
@@ -106,7 +108,7 @@ class SsoManager
 
     public function user(): ?User
     {
-        return Session::has('sso.user') ? unserialize(Session::get('sso.user')) : null;
+        return unserialize(Session::get('sso.user'));
     }
 
     public function set(User $user): void
@@ -117,5 +119,10 @@ class SsoManager
     public function token(): ?string
     {
         return Session::get('sso.id_token');
+    }
+
+    public function accessToken(): ?string
+    {
+        return Session::get('sso.access_token');
     }
 }
