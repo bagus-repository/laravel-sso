@@ -57,7 +57,7 @@ class SsoManager
             'RedirectUrl' => route('sso.callback'),
             'DeviceId' => base64_encode($DeviceId),
         ]);
-        return redirect(config('forisasso.base_uri') . '/sso/login?' . $queries);
+        return redirect(config('forisasso.base_url') . '/sso/login?' . $queries);
 
         // Session::put('sso.user', serialize($user));
 
