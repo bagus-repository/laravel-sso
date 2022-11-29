@@ -85,6 +85,11 @@ class SsoManager
         Session::put('sso.device_id', $user->getDeviceId());
     }
 
+    public function SsoLoginButton()
+    {
+        return view('Sso::sigin-button');
+    }
+
     public function logout()
     {
         // $accessToken = Session::get('sso.id_token');
