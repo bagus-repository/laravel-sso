@@ -117,14 +117,14 @@ class SsoManager
 
     public function check(): bool
     {
-        $Response = $this->Client->get(config('forisasso.base_url') . 'api/sso/checktoken', $this->ClientOptions());
+        $Response = $this->Client->get(config('forisasso.api_url') . '/sso/checktoken', $this->ClientOptions());
         
         return $Response->getStatusCode() == 200;
     }
 
     public function getUser()
     {
-        $Response = $this->client->get(config('forisasso.base_url') . 'api/sso/user', $this->ClientOptions());
+        $Response = $this->client->get(config('forisasso.api_url') . '/sso/user', $this->ClientOptions());
         
         return $this->checkAPIResponse($Response);
     }
