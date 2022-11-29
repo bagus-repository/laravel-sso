@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Dptsi\Sso\Middleware;
+namespace Forisa\Sso\Middleware;
 
 
 use Closure;
@@ -10,14 +10,11 @@ class Sso
 {
     public function handle($request, Closure $next)
     {
-        if (\Dptsi\Sso\Facade\Sso::check()) {
-            if (empty(\Dptsi\Sso\Facade\Sso::user()->getRoles())) {
-                return response()->view('Sso::illegitimate-role', [ 'provider' => config('openid.provider') ]);
-            }
+        if (\Forisa\Sso\Facade\Sso::check()) {
             return $next($request);
         }
 
-        return redirect(config('openid.redirect_uri'));
+        return redirect(route('sso.redirect'));
     }
 
 }

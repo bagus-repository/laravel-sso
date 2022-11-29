@@ -1,9 +1,9 @@
 <?php
 
-namespace Dptsi\Sso\Providers;
+namespace Forisa\Sso\Providers;
 
-use Dptsi\Sso\Core\SsoManager;
-use Dptsi\Sso\Middleware\Sso;
+use Forisa\Sso\Core\SsoManager;
+use Forisa\Sso\Middleware\Sso;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
@@ -41,9 +41,9 @@ class SsoServiceProvider extends ServiceProvider
     {
         $this->publishes(
             [
-                __DIR__ . '/../config/openid.php' => config_path('openid.php'),
+                __DIR__ . '/../config/forisasso.php' => config_path('forisasso.php'),
             ],
-            'dptsi-sso'
+            'forisa-sso'
         );
     }
 }

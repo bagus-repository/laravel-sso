@@ -1,109 +1,143 @@
 <?php
 
-namespace Dptsi\Sso\Core;
+namespace Forisa\Sso\Core;
 
-use Carbon\Carbon;
-use Dptsi\Sso\Models\Role;
-use Dptsi\Sso\Models\User;
-use Dptsi\Sso\Requests\OidcLoginRequest;
-use Dptsi\Sso\Requests\OidcLogoutRequest;
+use GuzzleHttp\Client;
+use Forisa\Sso\Models\Role;
+use Forisa\Sso\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
-use Its\Sso\OpenIDConnectClient;
+use Forisa\Sso\Requests\SSOLoginRequest;
+use Forisa\Sso\Requests\SSOLogoutRequest;
 
 class SsoManager
 {
-    public function login(OidcLoginRequest $request): void
-    {
-        $oidc = new OpenIDConnectClient($request->getProvider(), $request->getClientId(), $request->getClientSecret());
+    /**
+     * Http Client
+     *
+     * @var \GuzzleHttp\Client
+     */
+    private $Client;
 
-        $oidc->setRedirectURL($request->getRedirectUri());
-
-        $oidc->addScope($request->getScope());
-
-        if (strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
-            $oidc->setVerifyHost(false);
-            $oidc->setVerifyPeer(false);
+    public function __construct() {
+        if ($this->Client === null) {
+            $this->Client = new Client();
         }
-
-        $oidc->authenticate();
-
-        $userInfo = $oidc->requestUserInfo();
-
-        $user = new User(
-            $userInfo->sub,
-            $userInfo->name ?? null,
-            $userInfo->nickname ?? null,
-            $userInfo->picture ?? null,
-            $userInfo->gender ?? null,
-            $userInfo->birthdate ? new Carbon($userInfo->birthdate) : null,
-            $userInfo->zoneinfo ?? null,
-            $userInfo->locale ?? null,
-            $userInfo->preferred_username ?? null,
-            $userInfo->email ?? null,
-            $userInfo->email_verified ?? null,
-            $userInfo->alternate_email ?? null,
-            $userInfo->alternate_email_verified ?? null,
-            $userInfo->phone ?? null,
-            $userInfo->phone_verified ?? null,
-            $userInfo->resource ? json_decode(json_encode($userInfo->resource), true) : null,
-            $userInfo->integra_id ?? null,
-        );
-
-        foreach ($userInfo->group as $group) {
-            if (in_array($group->group_name, config('openid.allowed_roles'))) {
-                $user->addUserRole(new Role($group->group_name, null, null, null));
-            }
-        }
-
-        foreach ($userInfo->role as $role) {
-            if (in_array($role->role_name, config('openid.allowed_roles'))) {
-                $newRole = new Role(
-                    $role->role_name,
-                    $role->org_id,
-                    $role->org_name,
-                    $role->expired_at ? new Carbon($role->expired_at) : null,
-                );
-                $user->addUserRole($newRole);
-                if ($role->is_default === '1')
-                    $user->setActiveRole($newRole);
-            }
-        }
-
-        if (!empty($user->getRoles()) && empty($user->getActiveRole()))
-            $user->setActiveRole($user->getRoles()[0] ?? null);
-
-        Session::put('sso.user', serialize($user));
-
-        Session::put('sso.id_token', $oidc->getIdToken());
-
-        Session::put('sso.access_token', $oidc->getAccessToken());
     }
 
-    public function logout(OidcLogoutRequest $request): void
+    protected function clientOptions(array $headers = []): array
     {
-        $accessToken = Session::get('sso.id_token');
+        return [
+            'headers' => array_merge(
+                [
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json; charset=utf-8',
+                    'Authorization' => 'Bearer ' . Session::get('sso.access_token'),
+                ], $headers
+            ),
+            'timeout' => 300,
+            'verify' => false,
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'delay' => 0
+        ];
+    }
 
-        Session::remove('sso');
+    public function generateDeviceId()
+    {
+        return bin2hex(openssl_random_pseudo_bytes (16));
+    }
 
-        Session::save();
+    public function redirect()
+    {
+        $DeviceId = Session::has('sso.device_id') ? Session::get('sso.device_id'):Cookie::get('sso-device-id', $this->generateDeviceId());
+        $queries = http_build_query([
+            'AppCode' => base64_encode(config('forisasso.app_code')),
+            'RedirectUrl' => route('sso.callback'),
+            'DeviceId' => base64_encode($DeviceId),
+        ]);
+        return redirect(config('forisasso.base_uri') . '/sso/login?' . $queries);
 
-        $redirect = $request->getPostLogoutRedirectUri();
+        // Session::put('sso.user', serialize($user));
 
-        $oidc = new OpenIDConnectClient($request->getProvider(), $request->getClientId(), $request->getClientSecret());
+        // Session::put('sso.id_token', $oidc->getIdToken());
 
-        if (strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
-            $oidc->setVerifyHost(false);
-            $oidc->setVerifyPeer(false);
-        }
+        // Session::put('sso.access_token', $oidc->getAccessToken());
+    }
 
-        $oidc->signOut($accessToken, $redirect);
+    public function callback(Request $request)
+    {
+        $user = new User();
+        $user->setAccessToken($request->AccessToken);
+        $user->setEmployeeNo($request->EmployeeNo);
+        $user->setDeviceId($request->DeviceId);
+
+        $this->setSSOData($user);
+
+        return redirect(config('forisasso.post_login_redirect_uri'))->withCookie(cookie()->forever('sso-device-id', $request->DeviceId));
+    }
+
+    protected function setSSOData(User $user)
+    {
+        Session::put('sso.access_token', $user->getAccessToken());
+        Session::put('sso.employee_no', $user->getEmployeeNo());
+        Session::put('sso.device_id', $user->getDeviceId());
+    }
+
+    public function logout()
+    {
+        // $accessToken = Session::get('sso.id_token');
+
+        // Session::remove('sso');
+
+        // Session::save();
+
+        // $redirect = $request->getPostLogoutRedirectUri();
+
+        // $oidc = new OpenIDConnectClient($request->getProvider(), $request->getClientId(), $request->getClientSecret());
+
+        // if (strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
+        //     $oidc->setVerifyHost(false);
+        //     $oidc->setVerifyPeer(false);
+        // }
+
+        // $oidc->signOut($accessToken, $redirect);
+
+        Session::forget('accessToken');
+        //TODO : revoke token
+
+        return redirect(config('forisasso.post_logout_redirect_uri'))->with('error', 'Session Expired');
     }
 
     public function check(): bool
     {
-        if (Session::has('sso.user') == null)
-            return false;
-        return Session::has('sso.user');
+        $Response = $this->Client->get($this->api_url . 'sso/checktoken', $this->ClientOptions());
+        
+        return $Response->getStatusCode() == 200;
+    }
+
+    public function getUser()
+    {
+        $Response = $this->client->get($this->api_url . 'sso/user', $this->ClientOptions());
+        
+        return $this->checkAPIResponse($Response);
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param \Psr\Http\Message\ResponseInterface $Response
+     * @return void
+     */
+    public function checkAPIResponse($Response)
+    {
+        if ($Response->getStatusCode() == 200) {
+            $decoded = json_decode($Response->getBody()->getContents());
+            return $decoded;
+        }elseif ($Response->getStatusCode() == 401) {
+            return $this->logout();
+        }
     }
 
     public function user(): ?User

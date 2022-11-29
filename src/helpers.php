@@ -3,10 +3,10 @@
 
 if (!function_exists('sso')) {
     /**
-     * @return \Dptsi\Sso\Core\SsoManager|null
+     * @return \Forisa\Sso\Core\SsoManager|null
      */
     function sso()
     {
-        return app(\Dptsi\Sso\Core\SsoManager::class) ?? null;
+        return app(\Forisa\Sso\Core\SsoManager::class) ?? null;
     }
 }

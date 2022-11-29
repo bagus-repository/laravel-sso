@@ -1,19 +1,19 @@
 <?php
 
 
-namespace Dptsi\Sso\Facade;
+namespace Forisa\Sso\Facade;
 
 
 use Illuminate\Support\Facades\Facade;
 
 /**
  * Class Sso
- * @package Dptsi\Sso\Facade
- * @method static void login(\Dptsi\Sso\Requests\OidcLoginRequest $request)
- * @method static void logout(\Dptsi\Sso\Requests\OidcLogoutRequest $request)
+ * @package Forisa\Sso\Facade
+ * @method static void login(\Forisa\Sso\Requests\OidcLoginRequest $request)
+ * @method static void logout(\Forisa\Sso\Requests\OidcLogoutRequest $request)
  * @method static bool check()
- * @method static \Dptsi\Sso\Models\User|null user()
- * @method static void set(\Dptsi\Sso\Models\User $user)
+ * @method static \Forisa\Sso\Models\User|null user()
+ * @method static void set(\Forisa\Sso\Models\User $user)
  * @method static string|null token()
  */
 

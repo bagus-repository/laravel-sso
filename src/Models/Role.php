@@ -1,15 +1,13 @@
 <?php
 
-namespace Dptsi\Sso\Models;
-
-use Carbon\Carbon;
+namespace Forisa\Sso\Models;
 
 class Role
 {
-    private string $name;
-    private ?string $org_id;
-    private ?string $org_name;
-    private ?Carbon $expired_at;
+    private $name;
+    private $org_id;
+    private $org_name;
+    private $expired_at;
 
     /**
      * Role constructor.
@@ -19,10 +17,10 @@ class Role
      * @param Carbon|null $expired_at
      */
     public function __construct(
-        string $name,
-        ?string $org_id,
-        ?string $org_name,
-        ?Carbon $expired_at
+        $name,
+        $org_id,
+        $org_name,
+        $expired_at
     ) {
         $this->name = $name;
         $this->org_id = $org_id;
@@ -55,17 +53,10 @@ class Role
     }
 
     /**
-     * @return Carbon|null
+     * @return string|null
      */
-    public function getExpiredAt(): ?Carbon
+    public function getExpiredAt(): ?string
     {
         return $this->expired_at;
-    }
-
-    public function isActive(): bool
-    {
-        if($this->expired_at === null)
-            return true;
-        return now() < $this->expired_at;
     }
 }

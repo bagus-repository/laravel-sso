@@ -1,0 +1,1 @@
+<button onclick="location.assign('{{ route('sso.redirect') }}');" class="btn btn-sm btn-success">Login Dengan Akun Forisa</button>

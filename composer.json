@@ -1,24 +1,23 @@
 {
-  "name": "dptsi/laravel-sso",
-  "description": "Laravel authentication package for SSO ITS",
+  "name": "forisa/sso",
+  "description": "Laravel authentication package for SSO Forisa",
   "type": "library",
   "authors": [
     {
-      "name": "DPTSI ITS",
-      "email": "developer@its.ac.id"
+      "name": "Forisa SSO",
+      "email": "bagus.budi@forisa.co.id"
     }
   ],
   "minimum-stability": "dev",
   "require": {
-    "php": "^7.4|8.0.*",
-    "laravel/framework": "^8.12",
-    "myits/openid-connect-client": "^1.4.0",
-    "ramsey/uuid": "^4.0.0",
+    "php": "^7.2.5|^8.0",
+    "guzzlehttp/guzzle": "^7.5",
+    "laravel/framework": "^6.20.26",
     "ext-json": "*"
   },
   "autoload": {
     "psr-4": {
-      "Dptsi\\Sso\\": "src/"
+      "Forisa\\Sso\\": "src/"
     },
     "files": [
       "src/helpers.php"
@@ -27,7 +26,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Dptsi\\Sso\\Providers\\SsoServiceProvider"
+        "Forisa\\Sso\\Providers\\SsoServiceProvider"
       ]
     }
   }
