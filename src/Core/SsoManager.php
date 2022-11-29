@@ -87,7 +87,7 @@ class SsoManager
 
     public function SsoLoginButton()
     {
-        return view('Sso::sigin-button');
+        return view('Sso::signin-button');
     }
 
     public function logout()
