@@ -50,6 +50,9 @@ class SsoManager
 
     public function redirect()
     {
+        if ($this->checkBySession()) {
+            return redirect(config('forisasso.post_login_redirect_uri'));
+        }
         $DeviceId = Session::has('sso.device_id') ? Session::get('sso.device_id'):Cookie::get('sso-device-id', $this->generateDeviceId());
         $queries = http_build_query([
             'AppCode' => base64_encode(config('forisasso.app_code')),
@@ -71,6 +74,8 @@ class SsoManager
         $user->setAccessToken($request->AccessToken);
         $user->setEmployeeNo($request->EmployeeNo);
         $user->setDeviceId($request->DeviceId);
+        $user->setEmployeeName($request->EmployeeName);
+        $user->setEmail($request->Email);
 
         $this->setSSOData($user);
 
@@ -82,6 +87,8 @@ class SsoManager
         Session::put('sso.access_token', $user->getAccessToken());
         Session::put('sso.employee_no', $user->getEmployeeNo());
         Session::put('sso.device_id', $user->getDeviceId());
+        Session::put('sso.employee_name', $user->getEmployeeName());
+        Session::put('sso.email', $user->getEmail());
     }
 
     public function SsoLoginButton()

@@ -7,6 +7,7 @@ class User
     private $EmployeeNo;
     private $EmployeeName;
     private $DeviceId;
+    private $Email;
     
     // // openid claim
     // private string $id;
@@ -413,6 +414,26 @@ class User
     public function setDeviceId($DeviceId)
     {
         $this->DeviceId = $DeviceId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of Email
+     */ 
+    public function getEmail()
+    {
+        return $this->Email;
+    }
+
+    /**
+     * Set the value of Email
+     *
+     * @return  self
+     */ 
+    public function setEmail($Email)
+    {
+        $this->Email = $Email;
 
         return $this;
     }

@@ -10,7 +10,7 @@ class Sso
 {
     public function handle($request, Closure $next)
     {
-        if (\Forisa\Sso\Facade\Sso::check()) {
+        if (config('forisasso.check_token_type') == 'session' ? \Forisa\Sso\Facade\Sso::checkBySession():\Forisa\Sso\Facade\Sso::check()) {
             return $next($request);
         }
 

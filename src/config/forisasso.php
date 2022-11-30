@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'check_token_type'                  => env('FORISASSO_CHECK_TOKEN_TYPE', 'session'),
     'app_code'                  => env('FORISASSO_APP_CODE'),
     'base_url'                  => env('FORISASSO_BASE_URL'),
     'api_url'                 => env('FORISASSO_API_URL'),
