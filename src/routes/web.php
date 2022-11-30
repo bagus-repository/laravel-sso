@@ -1,6 +1,5 @@
 <?php
 
-use Forisa\Sso\Facade\Sso;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('web')->get('/sso/force-logout', function (){
@@ -14,7 +13,7 @@ Route::middleware('web')->get('/sso/force-logout', function (){
     // Sso::logout($request);
 });
 
-Route::prefix('sso')->group(function(){
+Route::prefix('sso')->middleware('web')->group(function(){
     Route::get('/redirect', 'Forisa\Sso\Core\SsoManager@redirect')->name('sso.redirect');
     Route::get('/callback', 'Forisa\Sso\Core\SsoManager@callback')->name('sso.callback');
     Route::get('/logout', 'Forisa\Sso\Core\SsoManager@logout')->name('sso.logout');

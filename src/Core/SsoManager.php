@@ -4,14 +4,10 @@ namespace Forisa\Sso\Core;
 
 use Exception;
 use GuzzleHttp\Client;
-use Forisa\Sso\Models\Role;
 use Forisa\Sso\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
-use Forisa\Sso\Requests\SSOLoginRequest;
-use Forisa\Sso\Requests\SSOLogoutRequest;
-use GuzzleHttp\Exception\ClientException;
 
 class SsoManager
 {
@@ -115,7 +111,7 @@ class SsoManager
 
         // $oidc->signOut($accessToken, $redirect);
 
-        Session::forget('accessToken');
+        Session::forget('sso');
         //TODO : revoke token
 
         return redirect(config('forisasso.post_logout_redirect_uri'))->with('error', 'Session Expired');
@@ -149,7 +145,7 @@ class SsoManager
      * Undocumented function
      *
      * @param \Psr\Http\Message\ResponseInterface $Response
-     * @return void
+     * @return mixed
      */
     public function checkAPIResponse($Response)
     {
@@ -159,6 +155,8 @@ class SsoManager
         }elseif ($Response->getStatusCode() == 401) {
             return $this->logout();
         }
+
+        throw new Exception("SSO Server Error");
     }
 
     public function user(): ?User
