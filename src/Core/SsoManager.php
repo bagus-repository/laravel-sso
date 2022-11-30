@@ -136,7 +136,7 @@ class SsoManager
 
     public function getUser()
     {
-        $Response = $this->client->get(config('forisasso.api_url') . '/sso/user', $this->ClientOptions());
+        $Response = $this->Client->get(config('forisasso.api_url') . '/sso/user', $this->ClientOptions());
         
         return $this->checkAPIResponse($Response);
     }
