@@ -1,0 +1,1 @@
+<button onclick="location.assign('{{ route('sso.logout') }}');" class="btn btn-sm btn-danger">Logout Akun</button>

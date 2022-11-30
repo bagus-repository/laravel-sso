@@ -2,6 +2,7 @@
 
 namespace Forisa\Sso\Core;
 
+use Exception;
 use GuzzleHttp\Client;
 use Forisa\Sso\Models\Role;
 use Forisa\Sso\Models\User;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Session;
 use Forisa\Sso\Requests\SSOLoginRequest;
 use Forisa\Sso\Requests\SSOLogoutRequest;
+use GuzzleHttp\Exception\ClientException;
 
 class SsoManager
 {
@@ -40,6 +42,7 @@ class SsoManager
             'verify' => false,
             'verify_peer' => false,
             'verify_peer_name' => false,
+            'http_errors' => false,
             'delay' => 0
         ];
     }
@@ -87,6 +90,9 @@ class SsoManager
 
     public function SsoLoginButton()
     {
+        if ($this->checkBySession()) {
+            return view('Sso::signout-button');
+        }
         return view('Sso::signin-button');
     }
 
@@ -120,6 +126,16 @@ class SsoManager
         $Response = $this->Client->get(config('forisasso.api_url') . '/sso/checktoken', $this->ClientOptions());
         
         return $Response->getStatusCode() == 200;
+    }
+
+    /**
+     * Check Logged In user By Session
+     *
+     * @return boolean
+     */
+    public function checkBySession(): bool
+    {
+        return Session::has('sso.access_token');
     }
 
     public function getUser()

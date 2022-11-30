@@ -17,4 +17,5 @@ Route::middleware('web')->get('/sso/force-logout', function (){
 Route::prefix('sso')->group(function(){
     Route::get('/redirect', 'Forisa\Sso\Core\SsoManager@redirect')->name('sso.redirect');
     Route::get('/callback', 'Forisa\Sso\Core\SsoManager@callback')->name('sso.callback');
+    Route::get('/logout', 'Forisa\Sso\Core\SsoManager@logout')->name('sso.logout');
 });
