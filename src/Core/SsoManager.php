@@ -58,6 +58,7 @@ class SsoManager
             'AppCode' => base64_encode(config('forisasso.app_code')),
             'RedirectUrl' => route('sso.callback'),
             'DeviceId' => base64_encode($DeviceId),
+            'At' => now()->isoFormat('X'),
         ]);
         if (filter_var($request->getHost(), FILTER_VALIDATE_IP) === false) {
             $HostUrl = config('forisasso.base_url');
