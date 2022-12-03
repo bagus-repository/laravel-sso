@@ -48,7 +48,7 @@ class SsoManager
         return bin2hex(openssl_random_pseudo_bytes (16));
     }
 
-    public function redirect()
+    public function redirect(Request $request)
     {
         if ($this->checkBySession()) {
             return redirect(config('forisasso.post_login_redirect_uri'));
@@ -59,7 +59,12 @@ class SsoManager
             'RedirectUrl' => route('sso.callback'),
             'DeviceId' => base64_encode($DeviceId),
         ]);
-        return redirect(config('forisasso.base_url') . '/sso/login?' . $queries);
+        if (filter_var($request->getHost(), FILTER_VALIDATE_IP) === false) {
+            $HostUrl = config('forisasso.base_url');
+        }else{
+            $HostUrl = config('forisasso.base_ip');
+        }
+        return redirect($HostUrl . '/sso/login?' . $queries);
 
         // Session::put('sso.user', serialize($user));
 
