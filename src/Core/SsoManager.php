@@ -91,7 +91,7 @@ class SsoManager
      * @param Request $request
      * @return void
      */
-    protected function callback(Request $request)
+    public function callback(Request $request)
     {
         $user = new User();
         $user->setEmployeeNo($request->EmployeeNo);
