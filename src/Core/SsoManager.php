@@ -24,6 +24,12 @@ class SsoManager
         }
     }
 
+    /**
+     * Guzzle options
+     *
+     * @param array $headers
+     * @return array
+     */
     protected function clientOptions(array $headers = []): array
     {
         return [
@@ -43,14 +49,25 @@ class SsoManager
         ];
     }
 
-    public function generateDeviceId()
+    /**
+     * Generate unique device id
+     *
+     * @return void
+     */
+    protected function generateDeviceId()
     {
-        return bin2hex(openssl_random_pseudo_bytes (16));
+        return bin2hex(openssl_random_pseudo_bytes(16));
     }
 
+    /**
+     * Redirect to auth server
+     *
+     * @param Request $request
+     * @return void
+     */
     public function redirect(Request $request)
     {
-        if ($this->checkBySession()) {
+        if (config('forisasso.check_token_type') == 'session' ? $this->checkBySession():$this->check()) {
             return redirect(config('forisasso.post_login_redirect_uri'));
         }
         $DeviceId = Session::has('sso.device_id') ? Session::get('sso.device_id'):Cookie::get('sso-device-id', $this->generateDeviceId());
@@ -66,70 +83,85 @@ class SsoManager
             $HostUrl = config('forisasso.base_ip');
         }
         return redirect($HostUrl . '/sso/login?' . $queries);
-
-        // Session::put('sso.user', serialize($user));
-
-        // Session::put('sso.id_token', $oidc->getIdToken());
-
-        // Session::put('sso.access_token', $oidc->getAccessToken());
     }
 
-    public function callback(Request $request)
+    /**
+     * get auth info from server
+     *
+     * @param Request $request
+     * @return void
+     */
+    protected function callback(Request $request)
     {
         $user = new User();
-        $user->setAccessToken($request->AccessToken);
         $user->setEmployeeNo($request->EmployeeNo);
         $user->setDeviceId($request->DeviceId);
         $user->setEmployeeName($request->EmployeeName);
         $user->setEmail($request->Email);
 
-        $this->setSSOData($user);
+        $this->setSSOToken($request->AccessToken);
+        $this->setSSOUser($user);
 
         return redirect(config('forisasso.post_login_redirect_uri'))->withCookie(cookie()->forever('sso-device-id', $request->DeviceId));
     }
 
-    protected function setSSOData(User $user)
+    /**
+     * Set SSO Token
+     *
+     * @param string $token
+     * @return void
+     */
+    protected function setSSOToken(string $token)
     {
-        Session::put('sso.access_token', $user->getAccessToken());
-        Session::put('sso.employee_no', $user->getEmployeeNo());
-        Session::put('sso.device_id', $user->getDeviceId());
-        Session::put('sso.employee_name', $user->getEmployeeName());
-        Session::put('sso.email', $user->getEmail());
+        Session::put('sso.access_token', $token);
     }
 
+    /**
+     * Set SSO User
+     *
+     * @param User $user
+     * @return void
+     */
+    protected function setSSOUser(User $user)
+    {
+        Session::put('sso.user', serialize($user));
+    }
+
+    /**
+     * Generate Sso Button
+     *
+     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
+     */
     public function SsoLoginButton()
     {
-        if ($this->checkBySession()) {
+        if (config('forisasso.check_token_type') == 'session' ? $this->checkBySession():$this->check()) {
             return view('Sso::signout-button');
         }
         return view('Sso::signin-button');
     }
 
-    public function logout()
+    /**
+     * Logout SSO
+     *
+     * @param \Closure|null $beforeLogout
+     * @return void
+     */
+    public function logout(\Closure $beforeLogout = null)
     {
-        // $accessToken = Session::get('sso.id_token');
-
-        // Session::remove('sso');
-
-        // Session::save();
-
-        // $redirect = $request->getPostLogoutRedirectUri();
-
-        // $oidc = new OpenIDConnectClient($request->getProvider(), $request->getClientId(), $request->getClientSecret());
-
-        // if (strtolower(config('app.env')) != 'production' && strtolower(config('app.env')) != 'prod') {
-        //     $oidc->setVerifyHost(false);
-        //     $oidc->setVerifyPeer(false);
-        // }
-
-        // $oidc->signOut($accessToken, $redirect);
-
+        if ($beforeLogout !== null) {
+            call_user_func($beforeLogout);
+        }
         Session::forget('sso');
         //TODO : revoke token
 
         return redirect(config('forisasso.post_logout_redirect_uri'))->with('error', 'Session Expired');
     }
 
+    /**
+     * Check auth from SSO Server
+     *
+     * @return boolean
+     */
     public function check(): bool
     {
         $Response = $this->Client->get(config('forisasso.api_url') . '/sso/checktoken', $this->ClientOptions());
@@ -147,7 +179,12 @@ class SsoManager
         return Session::has('sso.access_token');
     }
 
-    public function getUser()
+    /**
+     * Get Logged in SSO User from server
+     *
+     * @return mixed
+     */
+    public function getServerUser()
     {
         $Response = $this->Client->get(config('forisasso.api_url') . '/sso/user', $this->ClientOptions());
         
@@ -155,7 +192,7 @@ class SsoManager
     }
 
     /**
-     * Undocumented function
+     * Check SSO Response
      *
      * @param \Psr\Http\Message\ResponseInterface $Response
      * @return mixed
@@ -172,22 +209,33 @@ class SsoManager
         throw new Exception("SSO Server Error");
     }
 
+    /**
+     * Get SSO User
+     *
+     * @return User|null
+     */
     public function user(): ?User
     {
         return unserialize(Session::get('sso.user'));
     }
 
-    public function set(User $user): void
+    /**
+     * Set SSO User
+     *
+     * @param User $user
+     * @return void
+     */
+    public function setUser(User $user): void
     {
         Session::put('sso.user', serialize($user));
     }
 
+    /**
+     * Get SSO Token
+     *
+     * @return string|null
+     */
     public function token(): ?string
-    {
-        return Session::get('sso.id_token');
-    }
-
-    public function accessToken(): ?string
     {
         return Session::get('sso.access_token');
     }

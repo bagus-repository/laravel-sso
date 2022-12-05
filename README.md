@@ -1,71 +1,55 @@
 # Laravel SSO
 
-A helper package for ITS SSO authentication in laravel framework
+A helper package for Forisa SSO authentication in laravel framework
 
 ## Requirements
 
-1. PHP 7.4 or greater
-2. Laravel version 8
-3. myits/openid-connect-client
+1. PHP 7.2.5 or greater
+2. Laravel version 6
+3. Guzzle 7.5 or greater
 
 ## Installation
 
 Install using composer:
+place this code in `composer.json`
 
 ```shell
-composer require dptsi/laravel-sso
+"require": {
+    "forisa/sso" : "dev-master"
+},
+"repositories": [
+    {
+        "url": "https://github.com/bagus-repository/laravel-sso",
+        "type": "git"
+    }
+]
 ```
-
 ## Usage
 
 ### Login
 
-> @method static void login(\Dptsi\Sso\Requests\OidcLoginRequest $request)
+> Use provided button
+```php
+use Forisa\Sso\Facade\Sso;
+```
+then in blade
+```php
+{!! Sso::SsoLoginButton() !!}
+```
+or use your own button with link 
 
-- Create login request (provided credentials from ITS SSO)
-
-    ```php
-    use Dptsi\Sso\Requests\OidcLoginRequest;
-
-    $request = new OidcLoginRequest(
-        config('openid.provider'),
-        config('openid.client_id'),
-        config('openid.client_secret'),
-        config('openid.redirect_uri'),
-        config('openid.scope'),
-        config('openid.allowed_roles')
-    );
-    ```
-
-- Call static login method with `OidcLoginRequest` parameter
-
-    ```php
-    use Dptsi\Sso\Facade\Sso;
-
-    Sso::login($request);
-    ```
+```php
+route('sso.redirect')
+```
 
 ### Logout
 
-> @method static void logout(\Dptsi\Sso\Requests\OidcLogoutRequest $request)
+> @method static void logout()
 
-- Create logout request (provided credentials from ITS SSO)
-
-    ```php
-    use Dptsi\Sso\Requests\OidcLogoutRequest;
-
-    $request = new OidcLogoutRequest(
-        config('openid.provider'),
-        config('openid.client_id'),
-        config('openid.client_secret'),
-        config('openid.post_logout_redirect_uri')
-    );
-    ```
-
-- Call static logout method with `OidcLogoutRequest` parameter
+- Call static logout method (run this method after all client session destroyed)
 
     ```php
-    use Dptsi\Sso\Facade\Sso;
+    use Forisa\Sso\Facade\Sso;
 
     Sso::logout($request);
     ```
@@ -75,42 +59,47 @@ composer require dptsi/laravel-sso
 > @method static bool check()
 
 ```php
-use Dptsi\Sso\Facade\Sso;
+use Forisa\Sso\Facade\Sso;
 
 Sso::check();
 ```
+or
 
-### Get current authenticated user
-
-> @method static \Dptsi\Sso\Models\User|null user()
+> @method static bool checkBySession()
 
 ```php
-use Dptsi\Sso\Facade\Sso;
+use Forisa\Sso\Facade\Sso;
+
+Sso::checkBySession();
+```
+
+### Get current authenticated user by Session
+
+> @method static \Forisa\Sso\Models\User|null user()
+
+```php
+use Forisa\Sso\Facade\Sso;
 
 Sso::user();
 ```
 
 ### Set current authenticated user
 
-> @method static void set(\Dptsi\Sso\Models\User $user)
+> @method static void setUser(\Forisa\Sso\Models\User $user)
 
 ```php
-use Dptsi\Sso\Facade\Sso;
-use Dptsi\Sso\Models\User;
+use Forisa\Sso\Facade\Sso;
+use Forisa\Sso\Models\User;
 
 $user = Sso::user();
-
-$user->setActiveRole($role);
 
 Sso::set($user);
 ```
 
-For change role purpose
-
 ### Get token of current authenticated user
 
 ```php
-use Dptsi\Sso\Facade\Sso;
+use Forisa\Sso\Facade\Sso;
 
 Sso::token();
 ```
@@ -135,6 +124,23 @@ sso()->user()
 ...
 ```
 
-### Claim support
+### config needed
 
-Support any claim from ITS SSO, different claim determine `Dptsi\Sso\Models\User` model property (whether is null or not), more about [User Model](src/Models/User.php)
+```php
+return [
+    'check_token_type'          => env('FORISASSO_CHECK_TOKEN_TYPE', 'session'),
+    'app_code'                  => env('FORISASSO_APP_CODE'),
+    'base_url'                  => env('FORISASSO_BASE_URL'),
+    'base_ip'                  => env('FORISASSO_BASE_IP'),
+    'api_url'                   => env('FORISASSO_API_URL'),
+    'api_ip'                   => env('FORISASSO_API_IP'),
+    'post_login_redirect_uri'   => env('FORISASSO_POST_LOGIN_REDIRECT_URI'),
+    'post_logout_redirect_uri'  => env('FORISASSO_POST_LOGOUT_REDIRECT_URI'),
+    'scope'                     => env('FORISASSO_SCOPE'),
+    'allowed_roles'             => [
+        'Role1',
+        'Role2',
+        'Role3'
+    ],
+];
+```
