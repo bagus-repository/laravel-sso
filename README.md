@@ -144,3 +144,5 @@ return [
     ],
 ];
 ```
+also client must be registered in auth server and provide valid host
+> Example: career.forisa.co.id / 192.168.50.111
