@@ -3,6 +3,7 @@
 namespace Forisa\Sso\Models;
 class User
 {
+    private $CompanyCode;
     private $EmployeeNo;
     private $EmployeeName;
     private $DeviceId;
@@ -84,6 +85,26 @@ class User
     public function setEmail($Email)
     {
         $this->Email = $Email;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of CompanyCode
+     */ 
+    public function getCompanyCode()
+    {
+        return $this->CompanyCode;
+    }
+
+    /**
+     * Set the value of CompanyCode
+     *
+     * @return  self
+     */ 
+    public function setCompanyCode($CompanyCode)
+    {
+        $this->CompanyCode = $CompanyCode;
 
         return $this;
     }

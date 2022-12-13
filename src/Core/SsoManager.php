@@ -98,6 +98,7 @@ class SsoManager
         $user->setDeviceId($request->DeviceId);
         $user->setEmployeeName($request->EmployeeName);
         $user->setEmail($request->Email);
+        $user->setCompanyCode($request->CompanyCode);
 
         $this->setSSOToken($request->AccessToken);
         $this->setSSOUser($user);
