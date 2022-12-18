@@ -10,6 +10,7 @@ return [
     'post_login_redirect_uri'   => env('FORISASSO_POST_LOGIN_REDIRECT_URI'),
     'post_logout_redirect_uri'  => env('FORISASSO_POST_LOGOUT_REDIRECT_URI'),
     'scope'                     => env('FORISASSO_SCOPE'),
+    'prefix_route'              => env('FORISASSO_PREFIX_ROUTE', 'sso'),
     'allowed_roles'             => [
         'Role1',
         'Role2',
